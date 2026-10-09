@@ -1,0 +1,92 @@
+FROM dunglas/frankenphp:php8.4-alpine AS base
+
+# Install PHP extensions (tanpa redis dulu)
+RUN install-php-extensions \
+    pdo_mysql \
+    opcache \
+    intl \
+    zip \
+    bcmath \
+    pcntl \
+    && rm -rf /tmp/* /var/cache/apk/*
+
+# Install redis dari GitHub, bypass PECL
+RUN apk add --no-cache $PHPIZE_DEPS \
+    && mkdir -p /tmp/redis \
+    && curl -L https://github.com/phpredis/phpredis/archive/refs/tags/6.1.0.tar.gz \
+    | tar xz -C /tmp/redis --strip-components=1 \
+    && cd /tmp/redis \
+    && phpize \
+    && ./configure \
+    && make -j$(nproc) \
+    && make install \
+    && docker-php-ext-enable redis \
+    && apk del $PHPIZE_DEPS \
+    && rm -rf /tmp/redis /var/cache/apk/*
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+RUN apk add --no-cache \
+    bash \
+    curl \
+    unzip \
+    libcurl \
+    python3 \
+    py3-pip \
+    build-base \
+    python3-dev \
+    curl-dev \
+    nghttp2-dev \
+    libffi-dev
+
+RUN curl -fsSL https://bun.sh/install | bash \
+    && ln -s /root/.bun/bin/bun /usr/local/bin/bun
+
+COPY python/requirements.txt /tmp/requirements.txt
+
+RUN python3 -m venv /opt/ipo-venv \
+    && /opt/ipo-venv/bin/pip install --no-cache-dir -r /tmp/requirements.txt
+
+RUN apk del \
+    build-base \
+    python3-dev \
+    curl-dev \
+    nghttp2-dev \
+    libffi-dev
+
+ENV PYTHON_VENV=/opt/ipo-venv
+
+WORKDIR /app
+
+ENTRYPOINT []
+
+# ─────────────────────────────────────────
+# Dev
+# ─────────────────────────────────────────
+FROM base AS dev
+
+CMD ["php","artisan","octane:start","--host=0.0.0.0","--port=8000","--watch"]
+
+# ─────────────────────────────────────────
+# Prod
+# ─────────────────────────────────────────
+FROM base AS prod
+
+COPY . .
+
+RUN composer install \
+    --no-dev \
+    --optimize-autoloader \
+    --no-interaction
+
+RUN bun install \
+    && bun run build \
+    && rm -rf node_modules
+
+RUN php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache
+
+EXPOSE 8000
+
+CMD ["php","artisan","octane:frankenphp","--host=0.0.0.0","--port=8000","--max-requests=550","--caddyfile=Caddyfile"]

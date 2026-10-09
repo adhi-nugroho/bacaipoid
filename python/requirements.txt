@@ -1,0 +1,7 @@
+curl_cffi>=0.7.0
+beautifulsoup4==4.13.4
+SpeechRecognition==3.10.4
+pymysql
+cryptography
+pypdf
+openai

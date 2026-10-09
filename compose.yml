@@ -1,0 +1,146 @@
+name: bacaipo
+
+services:
+    app:
+        build:
+            context: .
+            dockerfile: php/dockerfile
+            target: dev
+        container_name: bacaipo-app
+        volumes:
+            - .:/app
+        environment:
+            - CONTAINER=true
+        restart: unless-stopped
+        ports:
+            - "9080:8000"
+        env_file: .env
+        depends_on:
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            qdrant:
+                condition: service_healthy
+        networks:
+            - appnet
+
+    queue:
+        build:
+            context: .
+            dockerfile: php/dockerfile
+            target: dev
+        container_name: bacaipo-queue
+        volumes:
+            - .:/app
+        environment:
+            - CONTAINER=true
+        restart: unless-stopped
+        command: [ "php", "artisan", "queue:work", "--sleep=3", "--timeout=600", "--tries=3" ]
+        env_file: .env
+        depends_on:
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+        networks:
+            - appnet
+
+    scheduler:
+        build:
+            context: .
+            dockerfile: php/dockerfile
+            target: dev
+        container_name: bacaipo-scheduler
+        volumes:
+            - .:/app
+        restart: unless-stopped
+        command: [ "php", "artisan", "schedule:work" ]
+        env_file: .env
+        environment:
+            - CONTAINER=true
+        depends_on:
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+        networks:
+            - appnet
+
+    reverb:
+        build:
+            context: .
+            dockerfile: php/dockerfile
+            target: dev
+        container_name: bacaipo-reverb
+        volumes:
+            - .:/app
+        restart: unless-stopped
+        command: [ "php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8085" ]
+        ports:
+            - "9085:8085"
+        env_file: .env
+        depends_on:
+            redis:
+                condition: service_healthy
+        networks:
+            - appnet
+
+    mysql:
+        image: mariadb:11
+        container_name: bacaipo-mysql
+        hostname: mysql
+        restart: unless-stopped
+        environment:
+            MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_USER: ${DB_USERNAME}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+        volumes:
+            - mysql_data:/var/lib/mysql
+        healthcheck:
+            test: ["CMD-SHELL", "mariadb-admin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD || mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        networks:
+            - appnet
+
+    redis:
+        image: redis:7-alpine
+        container_name: bacaipo-redis
+        hostname: redis
+        restart: unless-stopped
+        volumes:
+            - redis_data:/data
+        healthcheck:
+            test: [ "CMD", "redis-cli", "ping" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        networks:
+            - appnet
+
+    qdrant:
+        image: qdrant/qdrant:v1.14.1
+        container_name: bacaipo-qdrant
+        hostname: qdrant
+        restart: unless-stopped
+        volumes:
+            - qdrant_data:/qdrant/storage
+        healthcheck:
+            test: [ "CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/6333'" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        networks:
+            - appnet
+
+volumes:
+    mysql_data:
+    redis_data:
+    qdrant_data:
+
+networks:
+    appnet:
+        driver: bridge
