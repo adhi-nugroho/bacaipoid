@@ -1,0 +1,6 @@
+VERSION: 0.1.0
+DATE: 2026-10-09
+
+ADDED:
+- Professional English README with overview, features, architecture, and quickstart.
+- Documented background jobs, configuration, verification, and security policy.
