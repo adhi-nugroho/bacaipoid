@@ -1,0 +1,5 @@
+VERSION: 0.1.1
+DATE: 2026-10-09
+
+CHANGED:
+- Synced .env.example with all keys used in local .env, all values left empty.
