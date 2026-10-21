@@ -1,4 +1,4 @@
-FROM dunglas/frankenphp:php8.4-alpine AS base
+FROM dunglas/frankenphp:php8.4.27-alpine AS base
 
 # Install PHP extensions (tanpa redis dulu)
 RUN install-php-extensions \
