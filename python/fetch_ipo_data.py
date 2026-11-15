@@ -73,7 +73,10 @@ def cmd_sync_one(args: argparse.Namespace) -> None:
     validate_analysis(analysis)
     analysis["publish_status"] = "published"
     insert_ipo(analysis)
-    ingest(analysis)
+    try:
+        ingest(analysis)
+    except Exception as e:
+        print(f"Peringatan: Gagal ingest ke Qdrant ({e}), data IPO tetap tersimpan.", file=sys.stderr)
     print(f"Sinkronisasi emiten {args.code} selesai.", file=sys.stderr)
 
 

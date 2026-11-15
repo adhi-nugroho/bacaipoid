@@ -1,8 +1,9 @@
 FROM dunglas/frankenphp:php8.4.27-alpine AS base
 
-# Install PHP extensions (tanpa redis dulu)
+# Install PHP extensions via official script
 RUN install-php-extensions \
     pdo_mysql \
+    redis \
     opcache \
     intl \
     zip \
@@ -10,21 +11,9 @@ RUN install-php-extensions \
     pcntl \
     && rm -rf /tmp/* /var/cache/apk/*
 
-# Install redis dari GitHub, bypass PECL
-RUN apk add --no-cache $PHPIZE_DEPS \
-    && mkdir -p /tmp/redis \
-    && curl -L https://github.com/phpredis/phpredis/archive/refs/tags/6.1.0.tar.gz \
-    | tar xz -C /tmp/redis --strip-components=1 \
-    && cd /tmp/redis \
-    && phpize \
-    && ./configure \
-    && make -j$(nproc) \
-    && make install \
-    && docker-php-ext-enable redis \
-    && apk del $PHPIZE_DEPS \
-    && rm -rf /tmp/redis /var/cache/apk/*
-
+# Official images for tooling
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=oven/bun:alpine /usr/local/bin/bun /usr/local/bin/bun
 
 RUN apk add --no-cache \
     bash \
@@ -32,27 +21,20 @@ RUN apk add --no-cache \
     unzip \
     libcurl \
     python3 \
-    py3-pip \
-    build-base \
-    python3-dev \
-    curl-dev \
-    nghttp2-dev \
-    libffi-dev
-
-RUN curl -fsSL https://bun.sh/install | bash \
-    && ln -s /root/.bun/bin/bun /usr/local/bin/bun
+    py3-pip
 
 COPY python/requirements.txt /tmp/requirements.txt
 
-RUN python3 -m venv /opt/ipo-venv \
-    && /opt/ipo-venv/bin/pip install --no-cache-dir -r /tmp/requirements.txt
-
-RUN apk del \
+RUN apk add --no-cache --virtual .build-deps \
     build-base \
     python3-dev \
     curl-dev \
     nghttp2-dev \
-    libffi-dev
+    libffi-dev \
+    && python3 -m venv /opt/ipo-venv \
+    && /opt/ipo-venv/bin/pip install --no-cache-dir -r /tmp/requirements.txt \
+    && apk del .build-deps \
+    && rm -rf /tmp/* /var/cache/apk/*
 
 ENV PYTHON_VENV=/opt/ipo-venv
 
@@ -72,14 +54,22 @@ CMD ["php","artisan","octane:start","--host=0.0.0.0","--port=8000","--watch"]
 # ─────────────────────────────────────────
 FROM base AS prod
 
-COPY . .
-
+# 1. Dependency definitions first for layer caching
+COPY composer.json composer.lock ./
 RUN composer install \
     --no-dev \
-    --optimize-autoloader \
-    --no-interaction
+    --no-interaction \
+    --no-autoloader \
+    --no-scripts
 
-RUN bun install \
+COPY package.json bun.lock* ./
+RUN bun install
+
+# 2. Application source code
+COPY . .
+
+# 3. Optimize autoload & build assets
+RUN composer dump-autoload --optimize --no-dev \
     && bun run build \
     && rm -rf node_modules
 

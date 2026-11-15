@@ -6,6 +6,7 @@ services:
             context: .
             dockerfile: php/dockerfile
             target: dev
+        image: bacaipo:dev
         container_name: bacaipo-app
         volumes:
             - .:/app
@@ -26,10 +27,7 @@ services:
             - appnet
 
     queue:
-        build:
-            context: .
-            dockerfile: php/dockerfile
-            target: dev
+        image: bacaipo:dev
         container_name: bacaipo-queue
         volumes:
             - .:/app
@@ -47,10 +45,7 @@ services:
             - appnet
 
     scheduler:
-        build:
-            context: .
-            dockerfile: php/dockerfile
-            target: dev
+        image: bacaipo:dev
         container_name: bacaipo-scheduler
         volumes:
             - .:/app
@@ -68,10 +63,7 @@ services:
             - appnet
 
     reverb:
-        build:
-            context: .
-            dockerfile: php/dockerfile
-            target: dev
+        image: bacaipo:dev
         container_name: bacaipo-reverb
         volumes:
             - .:/app

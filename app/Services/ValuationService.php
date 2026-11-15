@@ -23,9 +23,14 @@ class ValuationService
      */
     public function estimate(Ipo $ipo): array
     {
-        if (empty(config('services.sumopod.api_key'))) {
+        $providerName = env('AI_PROVIDER', 'cloudflare');
+        $apiKey = $providerName === 'cloudflare'
+            ? config('services.cloudflare.api_key')
+            : config('services.sumopod.api_key');
+
+        if (empty($apiKey)) {
             return [
-                'error' => 'Layanan AI valuasi belum dikonfigurasi (API key tidak ditemukan).',
+                'error' => "Layanan AI valuasi belum dikonfigurasi (API key {$providerName} tidak ditemukan).",
                 'config_missing' => true,
             ];
         }
@@ -53,11 +58,16 @@ class ValuationService
     private function calculate(Ipo $ipo): array
     {
         try {
-            $provider = $this->aiManager->make('sumopod');
+            $providerName = env('AI_PROVIDER', 'cloudflare');
+            $provider = $this->aiManager->make($providerName);
+            $model = $providerName === 'cloudflare'
+                ? (env('CLOUDFLARE_CHAT_MODEL') ?: '@cf/meta/llama-3.3-70b-instruct-fp8-fast')
+                : 'deepseek-v4-pro';
+
             $rawResponse = $provider->generate(
                 $this->systemPrompt(),
                 $this->userPrompt($ipo),
-                'deepseek-v4-pro',
+                $model,
                 maxTokens: 2048,
                 temperature: 0.4,
                 timeout: 60

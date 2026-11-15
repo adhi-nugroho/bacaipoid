@@ -425,37 +425,6 @@ export default function ValuationSection({ ipo, valuation }: ValuationSectionPro
                             </table>
                         </div>
                     </Card>
-                </div>
-
-                {/* Right side: Descriptive Analysis + AI Methodology */}
-                <div className="space-y-4">
-                    {/* Analis Notes */}
-                    <Card>
-                        <h4 className="font-bold text-sm text-cream-100 mb-4 pb-3 border-b border-white/10 flex items-center gap-2">
-                            <HiOutlineScale className="w-4 h-4 text-copper-300" />
-                            Catatan Analis Valuasi
-                        </h4>
-                        <div className="space-y-4 text-xs leading-relaxed text-cream-400">
-                            <p>{peerInfo.valuationDescription}</p>
-                            <div className="border-t border-white/5 pt-4">
-                                <span className="text-[10px] text-cream-400/70 uppercase tracking-wide block mb-2">Pilar Evaluasi Harga:</span>
-                                <ul className="space-y-2 text-[11px]">
-                                    <li className="flex gap-2">
-                                        <span className="text-copper-300 font-bold">1.</span>
-                                        <span><strong>Profitabilitas Riil</strong>: Multiples dihitung berdasarkan Laba Bersih Tahun {latestFin?.year || 2025} yang diaudit, meminimalisir manipulasi laporan sementara.</span>
-                                    </li>
-                                    <li className="flex gap-2">
-                                        <span className="text-copper-300 font-bold">2.</span>
-                                        <span><strong>Sinyal Dilusi</strong>: Besaran dilusi kepemilikan ({dilutionPct}%) turut disesuaikan sebagai pengurang nilai wajar lembar saham.</span>
-                                    </li>
-                                    <li className="flex gap-2">
-                                        <span className="text-copper-300 font-bold">3.</span>
-                                        <span><strong>Dukungan Sektor</strong>: Multiples harga wajar didasarkan pada pergerakan historis P/E rata-rata sektor terdekat di Bursa Efek Indonesia.</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </Card>
 
                     {/* AI Methodology Card */}
                     {aiLoading && (
@@ -481,12 +450,6 @@ export default function ValuationSection({ ipo, valuation }: ValuationSectionPro
                                 Metodologi Perhitungan AI
                             </h4>
                             <div className="space-y-3 text-xs leading-relaxed text-cream-400">
-                                <div className="flex items-center gap-2 text-[10px] text-cream-400/70 mb-1">
-                                    <span className="px-1.5 py-0.5 bg-cyan-500/10 text-cyan-400 rounded font-bold uppercase tracking-wide">
-                                        deepseek-v4-pro
-                                    </span>
-                                    <span>via Sumopod</span>
-                                </div>
                                 {aiResult.pe_multiplier_min && (
                                     <div className="p-3 bg-white/[0.03] border border-white/5 rounded-lg">
                                         <span className="text-[10px] text-cream-400/70 block mb-1">Rentang P/E Wajar</span>
@@ -518,7 +481,7 @@ export default function ValuationSection({ ipo, valuation }: ValuationSectionPro
                                 <HiOutlineInformationCircle className="w-6 h-6 text-cream-400/70 mx-auto mb-2" />
                                 <p className="text-xs text-cream-400 mb-1">Estimasi AI Belum Dikonfigurasi</p>
                                 <p className="text-[10px] text-cream-400/50">
-                                    Konfigurasikan Sumopod API key untuk mengaktifkan estimasi harga wajar berbasis AI.
+                                    Konfigurasikan API key untuk mengaktifkan estimasi harga wajar berbasis AI.
                                 </p>
                             </div>
                         </Card>
@@ -540,6 +503,37 @@ export default function ValuationSection({ ipo, valuation }: ValuationSectionPro
                             </div>
                         </Card>
                     )}
+                </div>
+
+                {/* Right side: Descriptive Analysis */}
+                <div className="space-y-4">
+                    {/* Analis Notes */}
+                    <Card>
+                        <h4 className="font-bold text-sm text-cream-100 mb-4 pb-3 border-b border-white/10 flex items-center gap-2">
+                            <HiOutlineScale className="w-4 h-4 text-copper-300" />
+                            Catatan Analis Valuasi
+                        </h4>
+                        <div className="space-y-4 text-xs leading-relaxed text-cream-400">
+                            <p>{peerInfo.valuationDescription}</p>
+                            <div className="border-t border-white/5 pt-4">
+                                <span className="text-[10px] text-cream-400/70 uppercase tracking-wide block mb-2">Pilar Evaluasi Harga:</span>
+                                <ul className="space-y-2 text-[11px]">
+                                    <li className="flex gap-2">
+                                        <span className="text-copper-300 font-bold">1.</span>
+                                        <span><strong>Profitabilitas Riil</strong>: Multiples dihitung berdasarkan Laba Bersih Tahun {latestFin?.year || 2025} yang diaudit, meminimalisir manipulasi laporan sementara.</span>
+                                    </li>
+                                    <li className="flex gap-2">
+                                        <span className="text-copper-300 font-bold">2.</span>
+                                        <span><strong>Sinyal Dilusi</strong>: Besaran dilusi kepemilikan ({dilutionPct}%) turut disesuaikan sebagai pengurang nilai wajar lembar saham.</span>
+                                    </li>
+                                    <li className="flex gap-2">
+                                        <span className="text-copper-300 font-bold">3.</span>
+                                        <span><strong>Dukungan Sektor</strong>: Multiples harga wajar didasarkan pada pergerakan historis P/E rata-rata sektor terdekat di Bursa Efek Indonesia.</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </Card>
                 </div>
             </div>
         </div>

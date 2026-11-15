@@ -9,14 +9,14 @@ Artisan::command('inspire', function () {
 
 use Illuminate\Support\Facades\Schedule;
 
+Schedule::command('ipo:sync-statuses')
+    ->everyFiveMinutes()
+    ->withoutOverlapping(5);
+
 Schedule::command('ipo:sync')
-    ->dailyAt('02:30')
-    ->withoutOverlapping(55);
+    ->everyTenMinutes()
+    ->withoutOverlapping(10);
 
 Schedule::command('ipo:sync-underwriter-history --limit=6')
     ->dailyAt('02:30')
     ->withoutOverlapping(180);
-
-Schedule::command('ipo:sync-statuses')
-    ->dailyAt('02:30')
-    ->withoutOverlapping(10);

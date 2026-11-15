@@ -77,8 +77,10 @@ class QdrantService
         if ($accountId === '') {
             return null;
         }
-        $baseUrl = rtrim((string) config('services.cloudflare.base_url'), '/')
-            ."/accounts/{$accountId}/ai/v1";
+        $base = rtrim((string) config('services.cloudflare.base_url'), '/');
+        $baseUrl = str_contains($base, "/accounts/{$accountId}")
+            ? "{$base}/ai/v1"
+            : "{$base}/accounts/{$accountId}/ai/v1";
         $model = '@cf/baai/bge-small-en-v1.5';
 
         if (! $apiKey) {

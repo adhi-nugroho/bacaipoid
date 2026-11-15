@@ -8,10 +8,10 @@ from llm import get_embedding
 
 from config import env
 
-QDRANT_URL = env.get(
-    "QDRANT_URL",
-    f"{env.get('QDRANT_HOST', 'http://127.0.0.1')}:{env.get('QDRANT_PORT', '6333')}",
-).rstrip("/")
+_raw_url = env.get("QDRANT_URL") or f"{env.get('QDRANT_HOST', 'http://127.0.0.1')}:{env.get('QDRANT_PORT', '6333')}"
+if env.get("CONTAINER") == "true":
+    _raw_url = _raw_url.replace("127.0.0.1", "qdrant").replace("localhost", "qdrant")
+QDRANT_URL = _raw_url.rstrip("/")
 COLLECTION_NAME = env.get("QDRANT_COLLECTION", "ipo_analyses")
 VECTOR_DIM = 384  # dimensi @cf/baai/bge-small-en-v1.5
 

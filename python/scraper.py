@@ -65,16 +65,13 @@ def scrape_ipo_list(include_closed: bool = False) -> list[dict]:
                 company_name = match_h5.group(1).strip()
                 code = match_h5.group(2).strip()
 
-            # Status IPO — urutan cek: listed > offering > closed > book_building
-            # e-IPO mencantumkan 'Tanggal Pencatatan' dan 'Harga Final' untuk emiten yang sudah listing/tercatat
-            status = 'book_building'
-            if any(k in text_lower for k in ('listed', 'tercatat', 'tanggal pencatatan', 'harga final')):
+            # Status IPO
+            if is_closed:
                 status = 'listed'
-            elif any(k in text_lower for k in ('offering', 'penawaran umum', 'masa penawaran')):
+            elif any(k in text_lower for k in ('offering', 'penawaran umum')) and 'rentang harga' not in text_lower:
                 status = 'offering'
-            elif is_closed:
-                # Closed dengan indikasi pencatatan masuk ke listed, selain itu offering
-                status = 'listed'
+            else:
+                status = 'book_building'
 
             # Sektor — cari via regex "Sektor:" dulu, lalu fallback baris berikutnya.
             # Fallback wajib skip baris yang mengandung tanggal/jadwal agar tidak

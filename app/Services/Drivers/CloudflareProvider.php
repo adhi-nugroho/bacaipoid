@@ -18,7 +18,9 @@ class CloudflareProvider implements AiProvider
         $this->apiKey = config('services.cloudflare.api_key') ?? '';
         $accountId = (string) config('services.cloudflare.account_id');
         $base = rtrim((string) config('services.cloudflare.base_url'), '/');
-        $this->baseUrl = "{$base}/accounts/{$accountId}/ai/v1";
+        $this->baseUrl = str_contains($base, "/accounts/{$accountId}")
+            ? "{$base}/ai/v1"
+            : "{$base}/accounts/{$accountId}/ai/v1";
     }
 
     /**
