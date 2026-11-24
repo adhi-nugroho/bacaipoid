@@ -5,6 +5,7 @@ import { HiOutlineArrowRight } from 'react-icons/hi';
 const LINKS = [
     { label: 'Katalog IPO', href: route('home'), match: '/' },
     { label: 'Cara data disajikan', href: '#cara-data', match: '#cara-data' },
+    { label: 'Traktir Kopi', href: '#dukung', match: '#dukung' },
 ];
 
 export default function Navbar() {

@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { HiOutlineAdjustments, HiOutlineSearch } from 'react-icons/hi';
+import { HiOutlineAdjustments, HiOutlineHeart, HiOutlineSearch } from 'react-icons/hi';
+import { TbCoffee } from 'react-icons/tb';
 import AppLayout from '../Layouts/AppLayout';
 import IpoCard from '../Components/Molecules/IpoCard';
 import SeoMeta from '../Components/Atoms/SeoMeta';
@@ -354,6 +355,59 @@ export default function Welcome({ ipos = [] }: WelcomeProps) {
                         </Reveal>
                     ))}
                 </ol>
+            </section>
+
+            {/* Dukung / Traktir Kopi Section */}
+            <section
+                id="dukung"
+                className="pb-32 scroll-mt-28"
+                aria-labelledby="support-title"
+            >
+                <Reveal>
+                    <div className="relative overflow-hidden rounded-squircle border border-white/10 bg-white/5 p-1.5">
+                        <div className="relative flex flex-col items-center justify-between gap-8 rounded-[calc(2rem-0.375rem)] border border-white/5 bg-ink-900/90 px-8 py-12 text-center shadow-inset_hi sm:px-12 sm:py-16 md:flex-row md:text-left">
+                            <div className="max-w-xl">
+                                <span className="inline-flex items-center gap-2 rounded-full border border-copper-500/20 bg-copper-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-copper-300">
+                                    <TbCoffee className="h-3.5 w-3.5" />
+                                    Dukungan Komunitas
+                                </span>
+                                <h2
+                                    id="support-title"
+                                    className="mt-4 font-display text-3xl tracking-[-0.01em] text-cream-50 sm:text-4xl"
+                                >
+                                    Suka dengan MariBacaIPO?
+                                    <span className="block italic text-copper-300">
+                                        Traktir kopi untuk server & AI.
+                                    </span>
+                                </h2>
+                                <p className="mt-4 text-sm leading-6 text-cream-400">
+                                    MariBacaIPO dirancang gratis tanpa iklan untuk memudahkan riset prospektus ratusan halaman. Dukungan secangkir kopi dari Anda membantu menutup biaya server dan token komputasi AI agar layanan ini terus aktif untuk semua investor ritel.
+                                </p>
+                            </div>
+
+                            <div className="flex flex-col items-center gap-3 sm:flex-row md:flex-col lg:flex-row">
+                                <a
+                                    href="https://trakteer.id/adhi_nugroho22"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center justify-center gap-2 rounded-full bg-copper-400 px-6 py-3 text-xs font-semibold uppercase tracking-wider text-ink-950 transition-all duration-500 ease-silk hover:bg-copper-300 active:scale-95 shadow-lg shadow-copper-500/10"
+                                >
+                                    <TbCoffee className="h-4 w-4" />
+                                    Traktir Kopi
+                                </a>
+                                <a
+                                    href="https://saweria.co/atefastudio"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-6 py-3 text-xs font-semibold uppercase tracking-wider text-cream-200 transition-all duration-500 ease-silk hover:border-white/20 hover:bg-white/10 active:scale-95"
+                                >
+                                    <HiOutlineHeart className="h-4 w-4 text-rose-400" />
+                                    Dukung via Saweria
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </Reveal>
             </section>
         </AppLayout>
     );
